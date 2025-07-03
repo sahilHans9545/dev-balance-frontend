@@ -1,11 +1,30 @@
-import { Button } from "./components/ui/button"
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router";
+import Home from "./pages/Home";
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    Component: Home,
+    loader: undefined, // TODO : Add a loader for all routes
+  },
+  {
+    path: "/signup",
+    Component:Signup
+  },
+  {
+    path: "/login",
+    Component:Login
+  },
+
+]);
 function App() {
   return (
-    <div className="flex flex-col gap-5 justify-center items-center h-screen">
-    <div className=" font-medium text-2xl">Welcome to,  <span className="text-blue-500">devBalance</span></div>
-    <Button className="bg-blue-500">Shadcn Button</Button>
-    </div>
+    <RouterProvider router={router} />
   )
 }
 
