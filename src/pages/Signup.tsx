@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,14 +6,52 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Eye, EyeOff, Code } from 'lucide-react';
 import { Link } from 'react-router';
 import FullScreenLayout from '@/components/layouts/FullScreen';
+import { object, ref, string, ValidationError, type InferType } from 'yup';
 
-type formFields = 'fullName' | 'email' | 'password' | 'confirmPassword'
+// Creating a user Schema to validate the form data
+// fullName : string,
+// email : a valid email
+//  password : atleast 8 chars long, contains atleast 1 uppercase alphabet, atleast 1 lowercase alphabet, atleast 1 number
+const userSchema = object({
+  fullName: string().required("Full Name is required."),
+  email: string().email().required("A valid email is required."),
+  password: string().required().min(8, 'Password must be at least 8 characters long')
+  .test(
+    'password-strength',
+    'Password must be strong',
+    (value, context) => {
+      const password = value || '';
+      console.log("CONTEXT IS HERE : ",context)
+      if (!/[A-Z]/.test(password)) {
+        return context.createError({
+          message: 'Password must contain at least one uppercase letter',
+        });
+      }
 
-type formData = {
-  [k in formFields]:string
-}
+      if (!/[a-z]/.test(password)) {
+        return context.createError({
+          message: 'Password must contain at least one lowercase letter',
+        });
+      }
+
+      if (!/\d/.test(password)) {
+        return context.createError({
+          message: 'Password must contain at least one number',
+        });
+      }
+
+      return true;
+    }
+  ),
+  confirmPassword:  string()
+  .required('Confirm password is required')
+  .oneOf([ref('password')], 'password not matching'),
+});
+
+type User = InferType<typeof userSchema>;
+
 const Signup = () => {
-  const [formData, setFormData] = useState<formData>({
+  const [formData, setFormData] = useState<User>({
     fullName: '',
     email: '',
     password: '',
@@ -23,12 +61,28 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [isLoading,setIsLoading] = useState<boolean>(false)
 
-  // TODO : Use YUP for form validation
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleGoogleSignUp = () => {}
+
+  const handleSubmit = async (event : FormEvent) => {
+    event.preventDefault();
+    try{
+    await userSchema.validate(formData);
+    alert("Signup successfull");
+    }catch(error){
+      if (error instanceof ValidationError) {
+        console.log("Validation errors:", error.inner);
+        error.inner.forEach(err => {
+          console.log(`${err.path}: ${err.message}`);
+        });
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    }
+  }
 
 
   return (
@@ -85,7 +139,7 @@ const Signup = () => {
             </div>
           </div>
 
-          <form onSubmit={()=>{}} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
               <Input
