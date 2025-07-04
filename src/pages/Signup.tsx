@@ -13,15 +13,13 @@ import { object, ref, string, ValidationError, type InferType } from 'yup';
 // email : a valid email
 //  password : atleast 8 chars long, contains atleast 1 uppercase alphabet, atleast 1 lowercase alphabet, atleast 1 number
 const userSchema = object({
-  fullName: string().required("Full Name is required."),
-  email: string().email().required("A valid email is required."),
-  password: string().required().min(8, 'Password must be at least 8 characters long')
-  .test(
-    'password-strength',
-    'Password must be strong',
-    (value, context) => {
+  fullName: string().required('Full Name is required.'),
+  email: string().email().required('A valid email is required.'),
+  password: string()
+    .required()
+    .min(8, 'Password must be at least 8 characters long')
+    .test('password-strength', 'Password must be strong', (value, context) => {
       const password = value || '';
-      console.log("CONTEXT IS HERE : ",context)
       if (!/[A-Z]/.test(password)) {
         return context.createError({
           message: 'Password must contain at least one uppercase letter',
@@ -41,11 +39,10 @@ const userSchema = object({
       }
 
       return true;
-    }
-  ),
-  confirmPassword:  string()
-  .required('Confirm password is required')
-  .oneOf([ref('password')], 'password not matching'),
+    }),
+  confirmPassword: string()
+    .required('Confirm password is required')
+    .oneOf([ref('password')], 'password not matching'),
 });
 
 type User = InferType<typeof userSchema>;
@@ -55,35 +52,35 @@ const Signup = () => {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [isLoading,setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleGoogleSignUp = () => {}
+  const handleGoogleSignUp = () => {};
 
-  const handleSubmit = async (event : FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    try{
-    await userSchema.validate(formData);
-    alert("Signup successfull");
-    }catch(error){
+    setIsLoading(true);
+    try {
+      await userSchema.validate(formData);
+      alert('Signup successfull');
+    } catch (error) {
       if (error instanceof ValidationError) {
-        console.log("Validation errors:", error.inner);
-        error.inner.forEach(err => {
-          console.log(`${err.path}: ${err.message}`);
-        });
+        // showing the first error for now.
+        alert(error.errors[0]);
       } else {
-        console.error("Unexpected error:", error);
+        alert('Unexpected error');
       }
+    } finally {
+      setIsLoading(false);
     }
-  }
-
+  };
 
   return (
     <FullScreenLayout>
@@ -97,9 +94,7 @@ const Signup = () => {
           <CardTitle className="text-2xl font-bold">
             Join <span className="text-blue-600">devBalance</span>
           </CardTitle>
-          <CardDescription>
-            Create your account to get started
-          </CardDescription>
+          <CardDescription>Create your account to get started</CardDescription>
         </CardHeader>
         <CardContent>
           {/* Google Sign-Up Button */}
@@ -151,7 +146,7 @@ const Signup = () => {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -163,7 +158,7 @@ const Signup = () => {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
@@ -189,16 +184,14 @@ const Signup = () => {
                   )}
                 </Button>
               </div>
-              
-             
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" >Confirm Password</Label>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
-                   type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Confirm your password"
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
@@ -222,16 +215,16 @@ const Signup = () => {
                 <p className="text-xs text-red-500">Passwords do not match</p>
               )}
             </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full" 
+
+            <Button
+              type="submit"
+              className="w-full"
               disabled={isLoading || formData.password !== formData.confirmPassword}
             >
               {isLoading ? 'Creating account...' : 'Create Account'}
             </Button>
           </form>
-          
+
           <div className="mt-6 text-center text-sm">
             <span className="text-gray-600">Already have an account? </span>
             <Link to="/login" className="text-blue-600 hover:text-blue-800 font-medium">
@@ -245,4 +238,3 @@ const Signup = () => {
 };
 
 export default Signup;
-
