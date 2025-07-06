@@ -7,6 +7,7 @@ import { Eye, EyeOff, Code } from 'lucide-react';
 import { Link } from 'react-router';
 import FullScreenLayout from '@/components/layouts/FullScreen';
 import { object, ref, string, ValidationError, type InferType } from 'yup';
+import { enqueueSnackbar } from 'notistack';
 
 // Creating a user Schema to validate the form data
 // fullName : string,
@@ -69,13 +70,13 @@ const Signup = () => {
     setIsLoading(true);
     try {
       await userSchema.validate(formData);
-      alert('Signup successfull');
+      enqueueSnackbar('Signup successfull', { variant: 'success' });
     } catch (error) {
       if (error instanceof ValidationError) {
         // showing the first error for now.
-        alert(error.errors[0]);
+        enqueueSnackbar(error.errors[0], { variant: 'error' });
       } else {
-        alert('Unexpected error');
+        enqueueSnackbar('Unexpected error', { variant: 'error' });
       }
     } finally {
       setIsLoading(false);
