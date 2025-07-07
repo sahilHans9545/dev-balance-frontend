@@ -1,31 +1,31 @@
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router";
-import Home from "./pages/Home";
-import Signup from "./pages/Signup";
-import Login from "./pages/Login";
+import { createBrowserRouter, RouterProvider } from 'react-router';
+import { SnackbarProvider } from 'notistack';
+import Home from './pages/Home';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     Component: Home,
     loader: undefined, // TODO : Add a loader for all routes
   },
   {
-    path: "/signup",
-    Component:Signup
+    path: '/signup',
+    Component: Signup,
   },
   {
-    path: "/login",
-    Component:Login
+    path: '/login',
+    Component: Login,
   },
-
 ]);
 function App() {
   return (
-    <RouterProvider router={router} />
-  )
+    <>
+      <SnackbarProvider />
+      <RouterProvider router={router} />
+    </>
+  );
 }
 
-export default App
+export default App;
