@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 // email : a valid email
 //  password : atleast 8 chars long, contains atleast 1 uppercase alphabet, atleast 1 lowercase alphabet, atleast 1 number
 const userSchema = object({
-  fullName: string().required('Full Name is required.'),
+  name: string().required('Full Name is required.'),
   email: string().email().required('A valid email is required.'),
   password: string()
     .required()
@@ -51,7 +51,7 @@ type User = InferType<typeof userSchema>;
 
 const Signup = () => {
   const [formData, setFormData] = useState<User>({
-    fullName: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -150,7 +150,7 @@ const Signup = () => {
                 id="fullName"
                 type="text"
                 placeholder="Enter your full name"
-                value={formData.fullName}
+                value={formData.name}
                 onChange={(e) => handleInputChange('fullName', e.target.value)}
                 required
               />
