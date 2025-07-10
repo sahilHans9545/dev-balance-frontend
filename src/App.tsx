@@ -3,6 +3,7 @@ import { SnackbarProvider } from 'notistack';
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
+import VerifyEmail from './pages/VerifyEmail';
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
   {
     path: '/login',
     Component: Login,
+  },
+  {
+    path: '/verify-email',
+    Component: VerifyEmail,
   },
 ]);
 function App() {
