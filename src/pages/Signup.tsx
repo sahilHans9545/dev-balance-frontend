@@ -9,11 +9,13 @@ import FullScreenLayout from '@/components/layouts/FullScreen';
 import { object, ref, string, ValidationError, type InferType } from 'yup';
 import { enqueueSnackbar } from 'notistack';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import signup from '@/api/auth/signup';
+import { getErrorMessage } from '@/utils/getErrorMessage';
 
 // Creating a user Schema to validate the form data
 // fullName : string,
 // email : a valid email
-//  password : atleast 8 chars long, contains atleast 1 uppercase alphabet, atleast 1 lowercase alphabet, atleast 1 number
+// password : atleast 8 chars long, contains atleast 1 uppercase alphabet, atleast 1 lowercase alphabet, atleast 1 number
 const userSchema = object({
   name: string().required('Full Name is required.'),
   email: string().email().required('A valid email is required.'),
@@ -47,10 +49,10 @@ const userSchema = object({
     .oneOf([ref('password')], 'password not matching'),
 });
 
-type User = InferType<typeof userSchema>;
+type SignupPayload = InferType<typeof userSchema>;
 
 const Signup = () => {
-  const [formData, setFormData] = useState<User>({
+  const [formData, setFormData] = useState<SignupPayload>({
     name: '',
     email: '',
     password: '',
@@ -71,13 +73,20 @@ const Signup = () => {
     setIsLoading(true);
     try {
       await userSchema.validate(formData);
-      enqueueSnackbar('Signup successfull', { variant: 'success' });
+      const response = await signup(formData);
+      enqueueSnackbar(response.message, { variant: 'success' });
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+      });
     } catch (error) {
       if (error instanceof ValidationError) {
         // showing the first error for now.
         enqueueSnackbar(error.errors[0], { variant: 'error' });
       } else {
-        enqueueSnackbar('Unexpected error', { variant: 'error' });
+        enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
       }
     } finally {
       setIsLoading(false);
@@ -145,13 +154,13 @@ const Signup = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="name">Full Name</Label>
               <Input
-                id="fullName"
+                id="name"
                 type="text"
                 placeholder="Enter your full name"
                 value={formData.name}
-                onChange={(e) => handleInputChange('fullName', e.target.value)}
+                onChange={(e) => handleInputChange('name', e.target.value)}
                 required
               />
             </div>
